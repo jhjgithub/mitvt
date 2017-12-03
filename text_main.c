@@ -123,6 +123,8 @@ int main(int argc, char **argv)
 	unsigned long start = 0;
 	unsigned long end = ULONG_MAX;
 
+	return 0;
+
 	while ((c = getopt(argc, argv, "e?S:E:"))
 	       != -1) {
 		switch (c) {

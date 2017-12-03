@@ -27,7 +27,7 @@ struct rnd_state {
 //#define SEARCH_LOOPS 10000
 #define SEARCH_LOOPS 1
 
-static struct rb_root root = RB_ROOT;
+static struct rb_root g_root = RB_ROOT;
 static struct interval_tree_node nodes[NODES];
 static itvt_val_t queries[SEARCHES];
 
@@ -128,13 +128,55 @@ static void init(void)
 #endif
 }
 
+#if 0
+void interval_tree_destroy(struct rb_root *root)
+{
+	struct interval_tree_node *node;
+
+	while (1) {
+		node = rb_entry(rb_first(root), struct interval_tree_node, rb);
+		if (!node) {
+			break;
+		}
+
+		interval_tree_remove(node, root);
+
+		printf("D node(%u): %d - %d \n", node->idx, node->start, node->last);
+	}
+
+}
+#endif
+
+void free_node(struct interval_tree_node *node)
+{
+	printf("D node(%u): %d - %d \n", node->idx, node->start, node->last);
+}
+
+int dump_interval_tree(struct rb_root *root)
+{
+	struct interval_tree_node *node, *n;
+
+	interval_tree_for_each_entry(node, root) {
+		printf("node(%u): %d - %d \n", node->idx, node->start, node->last);
+	}
+
+	interval_tree_post_for_each_entry(node, n, root) {
+		printf("R node(%u): %d - %d \n", node->idx, node->start, node->last);
+	}
+
+	interval_tree_destroy(root, free_node);
+
+	return 0;
+}
+
+
 static int interval_tree_test_init(void)
 {
 	int i, j;
 	unsigned long results, n;
 	cycles_t time1, time2, _time;
 
-	printk(KERN_ALERT "interval tree insert/remove");
+	printk(KERN_ALERT "Interval tree insert/remove");
 
 	prandom_seed_state(&rnd, 3141592653589793238ULL);
 	init();
@@ -143,9 +185,9 @@ static int interval_tree_test_init(void)
 
 	for (i = 0; i < PERF_LOOPS; i++) {
 		for (j = 0; j < NODES; j++)
-			interval_tree_insert(nodes + j, &root);
+			interval_tree_insert(nodes + j, &g_root);
 		for (j = 0; j < NODES; j++)
-			interval_tree_remove(nodes + j, &root);
+			interval_tree_remove(nodes + j, &g_root);
 	}
 
 	time2 = get_cycles();
@@ -156,14 +198,14 @@ static int interval_tree_test_init(void)
 
 
 	for (j = 0; j < NODES; j++)
-		interval_tree_insert(nodes + j, &root);
+		interval_tree_insert(nodes + j, &g_root);
 
 	time1 = get_cycles();
 
 	results = 0;
 	for (i = 0; i < SEARCH_LOOPS; i++) {
 		for (j = 0; j < SEARCHES; j++) {
-			n = search(queries[j], &root);
+			n = interval_tree_search(queries[j], &g_root);
 			char *s = uint128_to_str(queries[j]);
 			printf("Value=%s, matched=%lu \n", s, n);
 
@@ -181,6 +223,8 @@ static int interval_tree_test_init(void)
 	printk(KERN_ALERT "interval tree search\n");
 	printk(" -> %llu cycles (%lu results)\n",
 	       (unsigned long long)time, results);
+
+	dump_interval_tree(&g_root);
 
 	return -EAGAIN; /* Fail will directly unload the module */
 }

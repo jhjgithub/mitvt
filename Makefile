@@ -6,7 +6,7 @@ CFLAGS = -Wall -ggdb -D_FILE_OFFSET_BITS=64 -I./
 
 CFILES=interval_tree.c rbtree.c
 csv_CFILES=text_main.c
-test_CFILES=main.c
+test_CFILES=main1.c
 HEADERS=interval_tree_generic.h  interval_tree.h  rbtree_augmented.h  rbtree.h
 
 objects = $(CFILES:.c=.o)
@@ -15,14 +15,15 @@ csv_objects = $(csv_CFILES:.c=.o)
 all_objects = $(objects) $(test_objects) $(csv_objects)
 
 #progs = interval-tree-test text_main
-progs = interval-tree-test mitvt
+progs = interval-tree-test
+#progs = mitvt
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@ $(LIBRARY_FLAGS)
 
 all: $(progs)
-#	./interval-tree-test
-	./mitvt
+	./interval-tree-test
+#	./mitvt
 
 $(all_objects): $(HEADERS)
 

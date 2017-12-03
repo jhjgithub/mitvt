@@ -171,7 +171,7 @@ int insert_node(mitvt_t *mitvt, rule_t *rules, int nrule)
 		mitvt->nrules = 1;
 	}
 
-	printf("# nibble: %d(%d)\n", mitvt->nrules, nrule);
+	//printf("# nibble: %d(%d)\n", mitvt->nrules, nrule);
 
 	mitvt->matched =  malloc(mitvt->nrules);
 	if (mitvt->matched == NULL) {
@@ -305,7 +305,7 @@ static void interval_tree_test_exit(void)
 
 int main(int argc, char **argv)
 {
-	printf("nibble_t: %lu\n", sizeof(nibble_t));
+	//printf("nibble_t: %lu\n", sizeof(nibble_t));
 
 	interval_tree_test_init();
 	interval_tree_test_exit();
